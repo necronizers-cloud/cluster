@@ -6,6 +6,12 @@
     "nodes": 4,
     "driver": "docker"
   },
-  "plugins": ["volumesnapshots", "csi-hostpath-driver", "yakd", "ingress"]
+  "plugins": ["volumesnapshots", "csi-hostpath-driver", "yakd", "ingress"],
+  "operators": [
+    {
+      "name": "MinIO Operator",
+      "steps": ["kubectl apply -k \"github.com/minio/operator?ref=v6.0.2\""]
+    }
+  ]
 }
 
