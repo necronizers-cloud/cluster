@@ -52,6 +52,86 @@ function set_up_cluster {
   fi
 }
 
+function set_up_plugins {
+  CONFIG_JSON_PATH=$1
+  CLUSTER_NAME=$2
+
+  echo "##################################"
+  echo "##                              ##"
+  echo "##      Installing plugins      ##"
+  echo "##                              ##"
+  echo "##################################"
+
+  PLUGINS_LIST=$(jq -rc '.plugins[]' "$CONFIG_JSON_PATH")
+
+  for PLUGIN in $PLUGINS_LIST
+  do
+    echo -e "\n\nSetting up $PLUGIN..."
+    minikube --profile "$CLUSTER_NAME" addons enable "$PLUGIN"
+
+
+    if [[ $? != 0 ]]
+    then
+      echo "##################################"
+      echo "##                              ##"
+      echo "##  Installing Plugins Failed   ##"
+      echo "## Please check the above logs! ##"
+      echo "##                              ##"
+      echo "##################################"
+
+      exit 1
+    else
+    echo -e "\n\n$PLUGIN is installed"
+    fi
+  done
+
+}
+
+function install_operators {
+  CONFIG_JSON_PATH=$1
+  CLUSTER_NAME=$2
+
+  echo "##################################"
+  echo "##                              ##"
+  echo "##     Installing Operators     ##"
+  echo "##                              ##"
+  echo "##################################"
+
+  OPERATORS_LIST=$(jq -rc '.operators[] | @base64' "$CONFIG_JSON_PATH")
+
+  for OPERATOR_HASHED in $OPERATORS_LIST
+  do
+    OPERATOR=$(echo "$OPERATOR_HASHED" | base64 --decode)
+    OPERATOR_NAME=$(echo "$OPERATOR" | jq -rc '.name')
+    OPERATOR_STEPS=$(echo "$OPERATOR" | jq -rc '.steps[] | @base64')
+
+    echo "Installing Operator: $OPERATOR_NAME..."
+
+    for STEP_HASHED in $OPERATOR_STEPS
+    do
+      STEP=$(echo "$OPERATOR_STEPS" | base64 --decode)
+
+      echo "Executing step: $STEP"
+      eval "${STEP}"
+
+      if [[ $? != 0 ]]
+      then
+        echo "##################################"
+        echo "##                              ##"
+        echo "## Installing Operator Failed!  ##"
+        echo "## Please check the above logs! ##"
+        echo "##                              ##"
+        echo "##################################"
+
+        exit 1
+      fi
+    done
+
+    echo -e "\n\n$OPERATOR_NAME is installed"
+  done
+
+}
+
 # --------------------------------- SCRIPT START --------------------------------- #
 
 CLUSTER_NAME=$(jq -rc '.cluster_name' "$CONFIG_JSON_PATH")
@@ -61,33 +141,7 @@ CHECK_CLUSTER_EXISTENCE=$(minikube profile list | grep -c "$CLUSTER_NAME" || tru
 if [[ "$CHECK_CLUSTER_EXISTENCE" == "0" ]]
 then
   set_up_cluster "$CONFIG_JSON_PATH"
+  set_up_plugins "$CONFIG_JSON_PATH" "$CLUSTER_NAME"
 fi
 
-echo "##################################"
-echo "##                              ##"
-echo "##      Installing plugins      ##"
-echo "##                              ##"
-echo "##################################"
-
-PLUGINS_LIST=$(jq -rc '.plugins[]' "$CONFIG_JSON_PATH")
-
-for PLUGIN in $PLUGINS_LIST
-do
-  echo -e "\n\nSetting up $PLUGIN..."
-  minikube --profile "$CLUSTER_NAME" addons enable "$PLUGIN"
-
-
-  if [[ $? != 0 ]]
-  then
-    echo "##################################"
-    echo "##                              ##"
-    echo "##  Installing Plugins Failed   ##"
-    echo "## Please check the above logs! ##"
-    echo "##                              ##"
-    echo "##################################"
-
-    exit 1
-  else
-  echo -e "\n\n$PLUGIN is installed"
-  fi
-done
+install_operators "$CONFIG_JSON_PATH" "$CLUSTER_NAME"
