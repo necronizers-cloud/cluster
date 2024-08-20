@@ -9,7 +9,7 @@
   "plugins": ["volumesnapshots", "csi-hostpath-driver", "yakd", "ingress"],
   "operators": [
     {
-      "name": "MinIO Operator",
+      "name": "MinIO",
       "steps": ["kubectl apply -k \"github.com/minio/operator?ref=v6.0.2\""]
     }
   ]
