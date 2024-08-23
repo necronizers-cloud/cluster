@@ -20,16 +20,24 @@ The list of requirements for utilizing this repository is:
 {
   "cluster_name": "NAME OF THE CLUSTER",
   "cluster_configuration": {
-    "vcpu_per_node": NUMBER OF vCPUs TO BE DEDICATED PER NODE,
-    "ram_per_node": RAM TO BE DEDICATED PER NODE,
-    "nodes": NUMBER OF NODES,
+    "vcpu_per_node": "NUMBER OF vCPUs TO BE DEDICATED PER NODE",
+    "ram_per_node": "RAM TO BE DEDICATED PER NODE",
+    "nodes": "NUMBER OF NODES",
     "driver": "DRIVER OF CHOICE"
   },
-  "plugins": ["PLUGINS TO BE ENABLED"]
+  "plugins": ["PLUGINS TO BE ENABLED"],
+  "operators": [
+    {
+      "name": "Operator Name",
+      "steps": ["STEPS HERE"]
+    }
+  ]
 }
 ```
 
-2. To spin up the cluster, execute the following commands in your terminal:
+For operator automation, refer to [Operator Installation Automation](#operator-installation-automation) guide
+
+1. To spin up the cluster, execute the following commands in your terminal:
 
 ```
 chmod +x ./scripts/up.sh
@@ -41,5 +49,27 @@ chmod +x ./scripts/up.sh
 ```
 chmod +x ./scripts/down.sh
 ./scripts/down.sh config.json
+```
+
+## Operator Installation Automation
+
+The structure to use for Operator Installation is given below:
+
+```json
+{
+  "name": "Operator Name",
+  "steps": ["STEPS HERE"]
+}
+```
+
+`name` can be any name you want to use and `steps` are all commands required for installing the Operator/CRDs. These are comma seperated strings in an array which are executed one at a time.
+
+For example, MinIO's automation looks like this:
+
+```json
+{
+  "name": "MinIO",
+  "steps": ["kubectl apply -k \"github.com/minio/operator?ref=v6.0.2\""]
+}
 ```
 
