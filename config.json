@@ -11,6 +11,12 @@
     {
       "name": "MinIO",
       "steps": ["kubectl apply -k \"github.com/minio/operator?ref=v6.0.2\""]
+    },
+    {
+      "name": "Cert-Manager",
+      "steps": [
+        "kubectl apply -f \"https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml\""
+      ]
     }
   ]
 }
