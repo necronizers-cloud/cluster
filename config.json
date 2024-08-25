@@ -17,6 +17,12 @@
       "steps": [
         "kubectl apply -f \"https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml\""
       ]
+    },
+    {
+      "name": "Cloud Native PG",
+      "steps": [
+        "kubectl apply --server-side -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/releases/cnpg-1.24.0.yaml"
+      ]
     }
   ]
 }
