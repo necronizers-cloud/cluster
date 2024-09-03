@@ -1,12 +1,5 @@
 {
   "cluster_name": "photoatom",
-  "cluster_configuration": {
-    "vcpu_per_node": 4,
-    "ram_per_node": 4,
-    "nodes": 4,
-    "driver": "docker"
-  },
-  "plugins": ["volumesnapshots", "csi-hostpath-driver", "yakd", "ingress"],
   "operators": [
     {
       "name": "MinIO",
