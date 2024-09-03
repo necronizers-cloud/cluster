@@ -6,10 +6,9 @@ CONFIG_JSON_PATH=$1
 
 CLUSTER_NAME=$(jq -rc '.cluster_name' "$CONFIG_JSON_PATH")
 
-CHECK_CLUSTER_EXISTENCE=$(minikube profile list | grep -c "$CLUSTER_NAME" || true)
+CHECK_CLUSTER_EXISTENCE=$(k3d cluster list | grep -c "$CLUSTER_NAME" || true)
 
 if [[ "$CHECK_CLUSTER_EXISTENCE" != "0" ]]
 then
-  # Deletion of the cluster by name.
-  minikube --profile "$CLUSTER_NAME" delete
+  k3d cluster delete --config cluster.yml
 fi
