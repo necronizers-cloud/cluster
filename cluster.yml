@@ -27,6 +27,10 @@ options:
       configOverrides:
         - settings.workerConnections=2048
   k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
     nodeLabels:
       - label: worker=photoatom-0
         nodeFilters:
