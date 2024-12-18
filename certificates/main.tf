@@ -1,4 +1,18 @@
-resource "kubernetes_manifest" "cluster_issuer" {
+// Kubernetes Secret for Cloudflare Tokens
+resource "kubernetes_secret" "cloudflare_token" {
+  metadata {
+    name = "cloudflare-token"
+  }
+
+  data = {
+    cloudflare-token = var.cloudflare_token
+  }
+
+  type = "Opaque"
+}
+
+// Self Signed Issuer for cluster domain services
+resource "kubernetes_manifest" "cluster_self_signed_issuer" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "ClusterIssuer"
@@ -15,21 +29,77 @@ resource "kubernetes_manifest" "cluster_issuer" {
   }
 }
 
+// Cloudflare Issuer for Public facing services
+resource "kubernetes_manifest" "cluster_public_issuer" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name" = "${var.public_cluster_issuer_name}"
+      "labels" = {
+        "app"       = "base"
+        "component" = "clusterissuer"
+      }
+    }
+    "spec" = {
+
+      "acme" = {
+
+        "email"  = var.cloudflare_email
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
+
+        "privateKeySecretRef" = {
+
+          "name" = "photoatom-issuer-key"
+
+        }
+
+        "solvers" = [
+          {
+            "dns01" = {
+              "cloudflare" = {
+
+                "email" = var.cloudflare_email
+
+                "apiTokenSecretRef" = {
+
+                  "name" = "cloudflare-token"
+                  "key"  = "cloudflare-token"
+
+                }
+
+              }
+            }
+          }
+        ]
+
+      }
+
+    }
+  }
+
+  depends_on = [kubernetes_secret.cloudflare_token]
+}
+
 // Certificate Authority to be used with MinIO Operator
 resource "kubernetes_manifest" "minio_ca" {
   manifest = {
+
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "Certificate"
     "metadata" = {
       "name"      = "${var.minio_operator_ca_name}"
       "namespace" = "${var.minio_operator_namespace}"
+
       "labels" = {
+
         "app"       = "minio-operator"
         "component" = "ca"
       }
     }
     "spec" = {
       "isCA" = true
+
       "subject" = {
         "organizations"       = ["photoatom"]
         "countries"           = ["India"]
@@ -38,6 +108,7 @@ resource "kubernetes_manifest" "minio_ca" {
       "commonName" = "operator"
       "secretName" = "operator-ca-tls"
       "duration"   = "70128h"
+
       "privateKey" = {
         "algorithm" = "ECDSA"
         "size"      = 256
@@ -50,15 +121,19 @@ resource "kubernetes_manifest" "minio_ca" {
     }
   }
 
-  depends_on = [kubernetes_manifest.cluster_issuer]
+  depends_on = [kubernetes_manifest.cluster_self_signed_issuer]
+
 }
+
 
 // Issuer for the MinIO Operator Namespace
 resource "kubernetes_manifest" "minio_issuer" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "Issuer"
+
     "metadata" = {
+
       "name"      = "${var.minio_operator_issuer_name}"
       "namespace" = "${var.minio_operator_namespace}"
       "labels" = {
