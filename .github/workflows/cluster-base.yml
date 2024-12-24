@@ -31,31 +31,31 @@ concurrency:
 jobs:
   operators_deploy:
     name: Operators Deployment onto Self Hosted K3d Cluster
-    uses: PhotoAtom/automations/.github/workflows/tofu-deploy.yml@main
+    uses: necronizers-cloud/automations/.github/workflows/tofu-deploy.yml@main
     with:
       deployment_name: Operators
       folder_path: operators
-      runners: photoatom
+      runners: cloud
     secrets: inherit
 
   dashboard_deploy:
     needs: operators_deploy
     name: Kubernetes Dashboard Deployment onto Self Hosted K3d Cluster
-    uses: PhotoAtom/automations/.github/workflows/tofu-deploy.yml@main
+    uses: necronizers-cloud/automations/.github/workflows/tofu-deploy.yml@main
     with:
       deployment_name: Kubernetes Dashboard
       folder_path: dashboard
-      runners: photoatom
+      runners: cloud
     secrets: inherit
 
   certificates_deploy:
     needs: dashboard_deploy
     name: Cluster Issuer and MinIO Operator Certificates Deployment onto Self Hosted K3d Cluster
-    uses: PhotoAtom/automations/.github/workflows/tofu-deploy.yml@main
+    uses: necronizers-cloud/automations/.github/workflows/tofu-deploy.yml@main
     with:
       deployment_name: Cluster Issuer and MinIO Operator Certificates
       folder_path: certificates
-      runners: photoatom
+      runners: cloud
       post_apply_script: |
 
         # Sleep for some time to give time for certs creation
