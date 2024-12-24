@@ -35,7 +35,7 @@ jobs:
     with:
       deployment_name: Operators
       folder_path: operators
-      runners: photoatom
+      runners: cloud
     secrets: inherit
 
   dashboard_deploy:
@@ -45,7 +45,7 @@ jobs:
     with:
       deployment_name: Kubernetes Dashboard
       folder_path: dashboard
-      runners: photoatom
+      runners: cloud
     secrets: inherit
 
   certificates_deploy:
@@ -55,7 +55,7 @@ jobs:
     with:
       deployment_name: Cluster Issuer and MinIO Operator Certificates
       folder_path: certificates
-      runners: photoatom
+      runners: cloud
       post_apply_script: |
 
         # Sleep for some time to give time for certs creation
