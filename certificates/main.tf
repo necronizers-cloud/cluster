@@ -36,7 +36,7 @@ resource "kubernetes_manifest" "minio_ca" {
       "isCA" = true
 
       "subject" = {
-        "organizations"       = ["photoatom"]
+        "organizations"       = ["cloud"]
         "countries"           = ["India"]
         "organizationalUnits" = ["MinIO Operator"]
       }
@@ -100,7 +100,7 @@ resource "kubernetes_manifest" "sts_certificate" {
     }
     "spec" = {
       "subject" = {
-        "organizations"       = ["photoatom"]
+        "organizations"       = ["cloud"]
         "countries"           = ["India"]
         "organizationalUnits" = ["MinIO Operator"]
       }

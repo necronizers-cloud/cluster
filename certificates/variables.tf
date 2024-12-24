@@ -4,7 +4,7 @@ variable "minio_operator_namespace" {
 }
 
 variable "cluster_issuer_name" {
-  default     = "photoatom-self-signed-issuer"
+  default     = "cloud-self-signed-issuer"
   description = "Name for the Cluster Issuer for Self Signed Certificates"
 }
 
