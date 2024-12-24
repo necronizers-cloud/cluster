@@ -1,9 +1,9 @@
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
-  name: photoatom
+  name: cloud
 servers: 1
-agents: 3
+agents: 1 
 kubeAPI:
   hostIP: "127.0.0.1"
   hostPort: "6445"
@@ -11,11 +11,9 @@ ports:
   - port: 80:80
     nodeFilters:
       - loadbalancer
-
   - port: 443:443
     nodeFilters:
       - loadbalancer
-
 options:
   k3d:
     wait: true
@@ -32,26 +30,14 @@ options:
         nodeFilters:
           - server:*
     nodeLabels:
-      - label: worker=photoatom-0
+      - label: worker=cloud-0
         nodeFilters:
           - agent:0
-      - label: worker=photoatom-1
-        nodeFilters:
-          - agent:1
-      - label: worker=photoatom-2
-        nodeFilters:
-          - agent:2
   kubeconfig:
     updateDefaultKubeconfig: true
     switchCurrentContext: true
   runtime:
     labels:
-      - label: worker=photoatom-0
+      - label: worker=cloud-0
         nodeFilters:
           - agent:0
-      - label: worker=photoatom-1
-        nodeFilters:
-          - agent:1
-      - label: worker=photoatom-2
-        nodeFilters:
-          - agent:2
